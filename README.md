@@ -1,4 +1,6 @@
-# ADB Mock GPS 🛰️
+# ADB Mock GPS 🛰️ 
+
+[![Android Release Build](https://github.com/lesurJ/ADB-Mock-GPS/actions/workflows/release.yml/badge.svg)](https://github.com/lesurJ/ADB-Mock-GPS/actions/workflows/release.yml)
 
 This simple app allows setting and retrieving mock GPS locations via ADB broadcasts on an Android 📱 smartphone. While other apps exist for manually setting mock locations, automating the process is better for testing purposes. Appium also offers this feature, but it doesn’t always work reliably on older phones—hence this project.
 
