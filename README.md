@@ -8,6 +8,7 @@ This simple app allows setting and retrieving mock GPS locations via ADB broadca
   - [Table of Contents](#table-of-contents)
   - [Important Notes](#important-notes)
   - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
   - [Usage](#usage)
     - [Examples](#examples)
     - [Testing Other Apps](#testing-other-apps)
@@ -29,16 +30,20 @@ This simple app allows setting and retrieving mock GPS locations via ADB broadca
 
 - **USB Debugging**: Enable USB debugging in Developer Options
 
+## Installation
+
 - 📲 **Install and Run the App**
 
-  1. Build and install the app on your device
-  2. Grant location permissions when prompted
-  3. The app should initially display "Waiting for location..."
+  This app is not available in the PlayStore. You can find a prebuilt APK in the `Releases` section of this repo.
+
+  1. From your device, download the `.apk` file.
+  2. Install it.
 
 - 🛰️ **Enable Mock Locations**
-  1. Go to Settings → Developer Options
-  2. Find "Select mock location app" or "Allow mock locations"
-  3. Select "ADB Mock GPS" app from the list
+
+  1. Open the `ADB Mock GPS` app.
+  2. If the location permissions are not granted, grant them using the appropriate `Grant` buttton.
+  3. Make sure to select this app as the mock location provider in the developer menu. Click `Select in Developer Options`, open the "Select mock location app" menu and select `ADB Mock GPS` app from the list
 
 ## Usage
 

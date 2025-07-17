@@ -9,6 +9,9 @@ import android.location.LocationManager
 import android.os.SystemClock
 import android.util.Log
 import android.location.provider.ProviderProperties
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 /**
@@ -16,6 +19,7 @@ import android.location.provider.ProviderProperties
  * and only updates locations on subsequent calls.
  */
 class SetLocationBroadcastReceiver : BroadcastReceiver() {
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     companion object {
         const val MOCK_PROVIDER_NAME = LocationManager.GPS_PROVIDER
@@ -26,14 +30,22 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
         private var isTestProviderSetup = false
     }
 
-    @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
-        Log.i("ADBMockGPS", "=== BROADCAST RECEIVER TRIGGERED ===")
-        Log.i("ADBMockGPS", "Action: ${intent.action}")
+        if (intent.action != ACTION_SET_LOCATION) {
+            return
+        }
 
-        when (intent.action) {
-            ACTION_SET_LOCATION -> handleLocationIntent(context, intent)
-            else -> Log.w("ADBMockGPS", "Unknown action: ${intent.action}")
+        val pendingResult = goAsync()
+        scope.launch {
+            try {
+                Log.i("ADBMockGPS", "=== BROADCAST RECEIVER TRIGGERED ===")
+                Log.i("ADBMockGPS", "Action: ${intent.action}")
+                handleLocationIntent(context, intent)
+            } catch (e: Exception) {
+                Log.e("ADBMockGPS", "Error processing broadcast", e)
+            } finally {
+                pendingResult.finish()
+            }
         }
     }
 
@@ -49,10 +61,9 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
         }
 
         Log.i("ADBMockGPS", "Received coordinates: lat=$lat, lon=$lon, alt=$alt")
+        BroadcastStateRepository.updateLastBroadcast(lat, lon, alt)
 
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
-        // Setup test provider only if it hasn't been setup yet
         if (!isTestProviderSetup) {
             if (setupTestProvider(locationManager)) {
                 isTestProviderSetup = true
@@ -63,21 +74,17 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
             }
         }
 
-        // Create and set the mock location (this is the only thing that happens on repeat calls)
         setMockLocation(locationManager, lat, lon, alt)
     }
 
     private fun setupTestProvider(locationManager: LocationManager): Boolean {
         try {
-            // Remove any existing test provider (only needed once)
-            try {
-                locationManager.removeTestProvider(MOCK_PROVIDER_NAME)
-                Log.d("ADBMockGPS", "Removed existing test provider")
-            } catch (e: Exception) {
-                Log.d("ADBMockGPS", "No existing test provider to remove")
-            }
+            locationManager.removeTestProvider(MOCK_PROVIDER_NAME)
+        } catch (e: Exception) {
+            Log.d("ADBMockGPS", "No existing test provider to remove or failed to remove.")
+        }
 
-            // Add the test provider
+        try {
             locationManager.addTestProvider(
                 MOCK_PROVIDER_NAME,
                 false,
@@ -91,7 +98,6 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
                 ProviderProperties.ACCURACY_FINE
             )
 
-            // Enable the test provider
             locationManager.setTestProviderEnabled(MOCK_PROVIDER_NAME, true)
             Log.i("ADBMockGPS", "Test provider setup successful")
             return true
@@ -117,11 +123,9 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
 
         try {
             locationManager.setTestProviderLocation(MOCK_PROVIDER_NAME, mockLocation)
-            LocationRepository.updateLocation(mockLocation)
             Log.i("ADBMockGPS", "Mock location updated to ($lat, $lon${alt?.let { ", $it" } ?: ""})")
         } catch (e: SecurityException) {
             Log.e("ADBMockGPS", "SecurityException: Failed to set mock location", e)
-            // Reset the setup flag so we can try again next time
             isTestProviderSetup = false
         } catch (e: Exception) {
             Log.e("ADBMockGPS", "Error setting mock location: ${e.message}", e)
