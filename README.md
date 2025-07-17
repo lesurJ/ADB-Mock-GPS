@@ -1,5 +1,7 @@
 # ADB Mock GPS 🛰️
 
+[![Android Release Build](https://github.com/lesurJ/ADB-Mock-GPS/actions/workflows/release.yml/badge.svg)](https://github.com/lesurJ/ADB-Mock-GPS/actions/workflows/release.yml)
+
 This simple app allows setting and retrieving mock GPS locations via ADB broadcasts on an Android 📱 smartphone. While other apps exist for manually setting mock locations, automating the process is better for testing purposes. Appium also offers this feature, but it doesn’t always work reliably on older phones—hence this project.
 
 ## Table of Contents
@@ -43,7 +45,7 @@ This simple app allows setting and retrieving mock GPS locations via ADB broadca
 
   1. Open the `ADB Mock GPS` app.
   2. If the location permissions are not granted, grant them using the appropriate `Grant` buttton.
-  3. Make sure to select this app as the mock location provider in the developer menu. Click `Select in Developer Options`, open the "Select mock location app" menu and select `ADB Mock GPS` app from the list
+  3. Make sure to select this app as the mock location provider in the developer menu. Click `Select in Developer Options`, open the "Select mock location app" menu and select `ADB Mock GPS` app from the list.
 
 ## Usage
 
