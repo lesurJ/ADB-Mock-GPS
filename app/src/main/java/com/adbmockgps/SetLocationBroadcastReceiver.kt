@@ -3,11 +3,10 @@ package com.adbmockgps
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.location.Location
 import android.location.LocationManager
-import android.os.SystemClock
 import android.util.Log
 import android.location.provider.ProviderProperties
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,7 +53,7 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
         // Extract latitude, longitude, and optional altitude from the intent extras
         val lat = intent.getStringExtra("lat")?.toDoubleOrNull()
         val lon = intent.getStringExtra("lon")?.toDoubleOrNull()
-        val alt = intent.getStringExtra("alt")?.toDoubleOrNull() // Optional altitude
+        val alt = intent.getStringExtra("alt")?.toDoubleOrNull()
 
         if (lat == null || lon == null) {
             Log.e("ADBMockGPS", "Invalid coordinates: lat=$lat, lon=$lon")
@@ -86,8 +85,13 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
             }
         }
 
-        setMockLocation(locationManager, GPS_LOCATION_PROVIDER, lat, lon, alt)
-        setMockLocation(locationManager, NETWORK_LOCATION_PROVIDER, lat, lon, alt)
+        val serviceIntent = Intent(context, MockLocationService::class.java).apply {
+            action = if (MockLocationService.isRunning) MockLocationService.ACTION_UPDATE_LOCATION else MockLocationService.ACTION_START
+            putExtra("lat", lat)
+            putExtra("lon", lon)
+            alt?.let { putExtra("alt", it) }
+        }
+        ContextCompat.startForegroundService(context, serviceIntent)
     }
 
     private fun setupTestProvider(locationManager: LocationManager, providerName: String): Boolean {
@@ -124,25 +128,4 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun setMockLocation(locationManager: LocationManager, providerName: String, lat: Double, lon: Double, alt: Double?) {
-        val mockLocation = Location(providerName).apply {
-            latitude = lat
-            longitude = lon
-            alt?.let { altitude = it }
-            accuracy = 1.0f
-            time = System.currentTimeMillis()
-            elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
-        }
-
-        try {
-            locationManager.setTestProviderLocation(providerName, mockLocation)
-            Log.i("ADBMockGPS", "Mock location updated for '$providerName' to ($lat, $lon${alt?.let { ", $it" } ?: ""})")
-        } catch (e: SecurityException) {
-            Log.e("ADBMockGPS", "SecurityException on setMockLocation for '$providerName': Mock location permission denied", e)
-            if (providerName == GPS_LOCATION_PROVIDER) isGpsProviderSetup = false
-            if (providerName == NETWORK_LOCATION_PROVIDER) isNetworkProviderSetup = false
-        } catch (e: Exception) {
-            Log.e("ADBMockGPS", "Error setting mock location: ${e.message}", e)
-        }
-    }
 }

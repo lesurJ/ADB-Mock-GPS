@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -29,20 +30,25 @@ class MainActivity : ComponentActivity() {
         Manifest.permission.ACCESS_COARSE_LOCATION,
     )
 
-    private var areLocationPermissionsGranted by mutableStateOf(false)
+    private var hasLocationPermissions by mutableStateOf(false)
+    private var hasNotificationPermission by mutableStateOf(false)
     private var isMockAppSelected by mutableStateOf(false)
+
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        checkPrerequisites()
+    }
+
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        checkPrerequisites()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        val permissionRequestLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissions ->
-            areLocationPermissionsGranted = permissions.all { it.value }
-            Log.d("MainActivity", "Permission result received. Granted: $areLocationPermissionsGranted")
-            checkPrerequisites()
-        }
 
         setContent {
             ADBMockGPSTheme {
@@ -58,11 +64,17 @@ class MainActivity : ComponentActivity() {
                 }
 
                 LocationScreen(
-                    arePermissionsGranted=areLocationPermissionsGranted,
+                    hasLocationPermissions=hasLocationPermissions,
+                    hasNotificationPermission=hasNotificationPermission,
                     isMockAppSelected=isMockAppSelected,
                     lastBroadcastInfo = lastBroadcastInfo,
-                    onGrantPermissions = {
-                        permissionRequestLauncher.launch(locationPermissions)
+                    onGrantLocationPermissions = {
+                        locationPermissionLauncher.launch(locationPermissions)
+                    },
+                    onGrantNotificationPermission = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
                     },
                     onSetMockApp = {
                         AlertDialog.Builder(this)
@@ -79,12 +91,17 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
     private fun checkPrerequisites() {
-        areLocationPermissionsGranted = locationPermissions.all {
+        hasLocationPermissions = locationPermissions.all {
             ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
         }
-        Log.d("MainActivity", "Permissions granted: $areLocationPermissionsGranted")
+        Log.d("MainActivity", "Location permissions granted: $hasLocationPermissions")
+
+        hasNotificationPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
 
         try {
             val mockLocationApp = Settings.Secure.getString(contentResolver, Settings.Secure.ALLOW_MOCK_LOCATION)

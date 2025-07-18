@@ -18,10 +18,12 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun LocationScreen(
-    arePermissionsGranted: Boolean,
+    hasLocationPermissions: Boolean,
+    hasNotificationPermission: Boolean,
     isMockAppSelected: Boolean,
     lastBroadcastInfo: LastBroadcastInfo?,
-    onGrantPermissions: () -> Unit,
+    onGrantLocationPermissions: () -> Unit,
+    onGrantNotificationPermission: () -> Unit,
     onSetMockApp: () -> Unit
 ) {
     Box(
@@ -43,7 +45,14 @@ fun LocationScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            StatusCard(arePermissionsGranted, isMockAppSelected, onGrantPermissions, onSetMockApp)
+            StatusCard(
+                hasLocationPermissions,
+                hasNotificationPermission,
+                isMockAppSelected,
+                onGrantLocationPermissions,
+                onGrantNotificationPermission,
+                onSetMockApp
+            )
             LastReceivedDataCard(lastBroadcastInfo)
             AdbCommandCard()
         }
@@ -52,9 +61,11 @@ fun LocationScreen(
 
 @Composable
 fun StatusCard(
-    permissionsGranted: Boolean,
+    hasLocationPermissions: Boolean,
+    hasNotificationPermission: Boolean,
     isMockAppSelected: Boolean,
-    onGrantPermissions: () -> Unit,
+    onGrantLocationPermissions: () -> Unit,
+    onGrantNotificationPermission: () -> Unit,
     onSetMockApp: () -> Unit
 ) {
     Card(
@@ -79,7 +90,9 @@ fun StatusCard(
             }
 
             Spacer(Modifier.height(12.dp))
-            StatusRow("Location Permissions", permissionsGranted)
+            StatusRow("Location Permissions", hasLocationPermissions)
+            Spacer(Modifier.height(12.dp))
+            StatusRow("Notification Permissions", hasNotificationPermission)
             Spacer(Modifier.height(12.dp))
             Text(
                 text = "Make sure to select this app as 'Mock Location App' in the developer settings.",
@@ -87,15 +100,22 @@ fun StatusCard(
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            if (!permissionsGranted){
-                Spacer(Modifier.height(16.dp))
-                Button(onClick = onGrantPermissions) {
-                    Text("Grant Permissions")
+            if (!hasLocationPermissions){
+                Spacer(Modifier.height(12.dp))
+                Button(onClick = onGrantLocationPermissions) {
+                    Text("Grant Location Permission")
+                }
+            }
+
+            if (!hasNotificationPermission){
+                Spacer(Modifier.height(12.dp))
+                Button(onClick = onGrantNotificationPermission) {
+                    Text("Grant Notification Permission")
                 }
             }
 
             if (!isMockAppSelected) {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(12.dp))
                 Button(onClick = onSetMockApp) {
                     Text("Select in Developer Options")
                 }
