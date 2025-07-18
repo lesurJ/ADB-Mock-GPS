@@ -32,7 +32,6 @@ class MainActivity : ComponentActivity() {
 
     private var hasLocationPermissions by mutableStateOf(false)
     private var hasNotificationPermission by mutableStateOf(false)
-    private var isMockAppSelected by mutableStateOf(false)
 
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -66,7 +65,6 @@ class MainActivity : ComponentActivity() {
                 LocationScreen(
                     hasLocationPermissions=hasLocationPermissions,
                     hasNotificationPermission=hasNotificationPermission,
-                    isMockAppSelected=isMockAppSelected,
                     lastBroadcastInfo = lastBroadcastInfo,
                     onGrantLocationPermissions = {
                         locationPermissionLauncher.launch(locationPermissions)
@@ -76,7 +74,7 @@ class MainActivity : ComponentActivity() {
                             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                         }
                     },
-                    onSetMockApp = {
+                    onOpenDeveloperOptions = {
                         AlertDialog.Builder(this)
                             .setTitle("Enable Mock Location")
                             .setMessage("To enable mock locations, please select this app in Developer Options > Select mock location app.")
@@ -101,15 +99,6 @@ class MainActivity : ComponentActivity() {
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
         } else {
             true
-        }
-
-        try {
-            val mockLocationApp = Settings.Secure.getString(contentResolver, Settings.Secure.ALLOW_MOCK_LOCATION)
-            isMockAppSelected = mockLocationApp?.contains(packageName) == true
-            Log.d("MainActivity", "Is this app the selected mock provider? $isMockAppSelected $mockLocationApp")
-        } catch (e: Exception) {
-            isMockAppSelected = false
-            Log.e("MainActivity", "Could not determine mock location app.", e)
         }
     }
 

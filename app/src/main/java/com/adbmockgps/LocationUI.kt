@@ -20,11 +20,10 @@ import androidx.compose.ui.unit.sp
 fun LocationScreen(
     hasLocationPermissions: Boolean,
     hasNotificationPermission: Boolean,
-    isMockAppSelected: Boolean,
     lastBroadcastInfo: LastBroadcastInfo?,
     onGrantLocationPermissions: () -> Unit,
     onGrantNotificationPermission: () -> Unit,
-    onSetMockApp: () -> Unit
+    onOpenDeveloperOptions: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -48,10 +47,9 @@ fun LocationScreen(
             StatusCard(
                 hasLocationPermissions,
                 hasNotificationPermission,
-                isMockAppSelected,
                 onGrantLocationPermissions,
                 onGrantNotificationPermission,
-                onSetMockApp
+                onOpenDeveloperOptions
             )
             LastReceivedDataCard(lastBroadcastInfo)
             AdbCommandCard()
@@ -63,10 +61,9 @@ fun LocationScreen(
 fun StatusCard(
     hasLocationPermissions: Boolean,
     hasNotificationPermission: Boolean,
-    isMockAppSelected: Boolean,
     onGrantLocationPermissions: () -> Unit,
     onGrantNotificationPermission: () -> Unit,
-    onSetMockApp: () -> Unit
+    onOpenDeveloperOptions: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -114,11 +111,9 @@ fun StatusCard(
                 }
             }
 
-            if (!isMockAppSelected) {
-                Spacer(Modifier.height(12.dp))
-                Button(onClick = onSetMockApp) {
-                    Text("Select in Developer Options")
-                }
+            Spacer(Modifier.height(12.dp))
+            Button(onClick = onOpenDeveloperOptions) {
+                Text("Select in Developer Options")
             }
         }
     }
