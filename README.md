@@ -2,7 +2,12 @@
 
 [![Android Release Build](https://github.com/lesurJ/ADB-Mock-GPS/actions/workflows/release.yml/badge.svg)](https://github.com/lesurJ/ADB-Mock-GPS/actions/workflows/release.yml)
 
-This simple app allows setting and retrieving mock GPS locations via ADB broadcasts on an Android 📱 smartphone. While other apps exist for manually setting mock locations, automating the process is better for testing purposes. Appium also offers this feature, but it doesn’t always work reliably on older phones—hence this project.
+This simple app allows setting and retrieving mock GPS locations via ADB broadcasts on an Android 📱 smartphone. It mocks location from both the GPS and Network providers allowing the use of fine location.
+While other apps exist for manually setting mock locations, automating the process is better for testing purposes. Appium also offers this feature, but it doesn’t always work reliably on older phones—hence this project.
+
+<div style="text-align: center;">
+  <img src="img/ui.png" width="200">
+</div>
 
 ## Table of Contents
 
@@ -28,6 +33,8 @@ This simple app allows setting and retrieving mock GPS locations via ADB broadca
 
 ## Prerequisites
 
+- 📱 **Android version**: a phone with Android >= 12 (this app has a minSDK=31)
+
 - 🔓 **Developer Options Enabled**: Your device should have Developer Options enabled
 
 - **USB Debugging**: Enable USB debugging in Developer Options
@@ -41,11 +48,21 @@ This simple app allows setting and retrieving mock GPS locations via ADB broadca
   1. From your device, download the `.apk` file.
   2. Install it.
 
+  Alternatively, you can install Android Studio, clone this repo and build the project.
+
 - 🛰️ **Enable Mock Locations**
 
   1. Open the `ADB Mock GPS` app.
   2. If the location permissions are not granted, grant them using the appropriate `Grant` buttton.
   3. Make sure to select this app as the mock location provider in the developer menu. Click `Select in Developer Options`, open the "Select mock location app" menu and select `ADB Mock GPS` app from the list.
+
+- 🔔 **Enable Notifications**
+
+  This app uses a Foreground Service to keep the location active (pulsing location every 1.5sec). As of API 33, the app is required by Android to post a notification allowing to stop the service.
+
+  1. For API 33 and above, grant the notification permission by clicking on the "Grant Notification" button and allow notification.
+  2. For API <= 32 you don't have to grant the notification permission.
+  3. If unsure, allow notifications.
 
 ## Usage
 
@@ -54,6 +71,8 @@ To set the GPS location using adb, use this command with LATITUDE, LONGITUDE (an
 ```bash
 adb shell am broadcast -a com.adbmockgps.SET_LOCATION --es lat "LATITUDE" --es lon "LONGITUDE" [--es alt "ALTITUDE"] -f 0x01000000
 ```
+
+The `LATITUDE` and `LONGITUDE` are GPS coordinates (unitless, decimal representation) whereas the `ALTITUDE` is an integer (unit: meter).
 
 To get the GPS location using adb, use this command:
 
