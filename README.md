@@ -5,9 +5,18 @@
 This simple app allows setting and retrieving mock GPS locations via ADB broadcasts on an Android 📱 smartphone. It mocks location from both the GPS and Network providers allowing the use of fine location.
 While other apps exist for manually setting mock locations, automating the process is better for testing purposes. Appium also offers this feature, but it doesn’t always work reliably on older phones—hence this project.
 
-<div style="text-align: center;">
-  <img src="img/ui.png" width="200">
-</div>
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="img/ui.png" width="200"><br>
+      <sub>UI View</sub>
+    </td>
+    <td align="center">
+      <img src="img/maps.png" width="200"><br>
+      <sub>Maps View</sub>
+    </td>
+  </tr>
+</table>
 
 ## Table of Contents
 
