@@ -114,7 +114,7 @@ class MockLocationService : Service() {
         return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setContentTitle("ADB Mock GPS Active")
             .setContentText("Mocking location. Tap to open app.")
-            //.setSmallIcon(R.mipmap.ic_launcher_round)
+            .setSmallIcon(R.drawable.ic_stat_satellite)
             .setContentIntent(pendingIntent)
             .addAction(0, "Stop Mocking", pendingStopIntent)
             .setOngoing(true)
