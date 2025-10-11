@@ -72,6 +72,7 @@ class MainActivity : ComponentActivity() {
                     hasLocationPermissions=hasLocationPermissions,
                     hasNotificationPermission=hasNotificationPermission,
                     lastBroadcastInfo = lastBroadcastInfo,
+                    buildTagVersion = BuildConfig.BUILD_TAG_VERSION,
                     onGrantLocationPermissions = {
                         locationPermissionLauncher.launch(locationPermissions)
                     },

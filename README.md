@@ -3,7 +3,7 @@
 [![Android Release Build](https://github.com/lesurJ/ADB-Mock-GPS/actions/workflows/release.yml/badge.svg)](https://github.com/lesurJ/ADB-Mock-GPS/actions/workflows/release.yml)
 
 This simple app allows setting and retrieving mock GPS locations via ADB broadcasts on an Android 📱 smartphone. It mocks location from both the GPS and Network providers allowing the use of fine location.
-While other apps exist for manually setting mock locations, automating the process is better for testing purposes. Appium also offers this feature, but it doesn’t always work reliably on older phones—hence this project.
+While other apps exist for manually setting mock locations, having the ability to automate the process via ADB is better for testing purposes.
 
 <table align="center">
   <tr>
@@ -46,7 +46,7 @@ While other apps exist for manually setting mock locations, automating the proce
 
 - 🔓 **Developer Options Enabled**: Your device should have Developer Options enabled
 
-- **USB Debugging**: Enable USB debugging in Developer Options
+- 🛠️ **USB Debugging**: Enable USB debugging in Developer Options
 
 ## Installation
 
@@ -75,13 +75,13 @@ While other apps exist for manually setting mock locations, automating the proce
 
 ## Usage
 
-To set the GPS location using adb, use this command with LATITUDE, LONGITUDE (and optionally ALTITUDE):
+To set the GPS location using adb, use this command and replace LATITUDE, LONGITUDE (and optionally ALTITUDE) with your values:
 
 ```bash
 adb shell am broadcast -a com.adbmockgps.SET_LOCATION --es lat "LATITUDE" --es lon "LONGITUDE" [--es alt "ALTITUDE"] -f 0x01000000
 ```
 
-The `LATITUDE` and `LONGITUDE` are GPS coordinates (unitless, decimal representation) whereas the `ALTITUDE` is an integer (unit: meter).
+The `LATITUDE` and `LONGITUDE` are GPS coordinates (float, unitless, decimal representation) whereas the `ALTITUDE` is a float (unit: meter).
 
 To get the GPS location using adb, use this command:
 

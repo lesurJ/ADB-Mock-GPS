@@ -21,6 +21,7 @@ fun LocationScreen(
     hasLocationPermissions: Boolean,
     hasNotificationPermission: Boolean,
     lastBroadcastInfo: LastBroadcastInfo?,
+    buildTagVersion: String,
     onGrantLocationPermissions: () -> Unit,
     onGrantNotificationPermission: () -> Unit,
     onOpenDeveloperOptions: () -> Unit
@@ -54,6 +55,15 @@ fun LocationScreen(
             LastReceivedDataCard(lastBroadcastInfo)
             AdbCommandCard()
         }
+        Text(
+            text = "Build: $buildTagVersion",
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 8.dp),
+            color = Color.DarkGray,
+            fontSize = 10.sp,
+            fontFamily = FontFamily.Monospace
+        )
     }
 }
 

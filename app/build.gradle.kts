@@ -38,6 +38,12 @@ android {
     }
 
     buildTypes {
+        val buildTagVersion: String = if (project.hasProperty("buildTagVersion")) {
+            project.property("buildTagVersion") as String
+        } else {
+            "LOCAL_DEV"
+        }
+
         getByName("release") {
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("release")
@@ -45,6 +51,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "BUILD_TAG_VERSION", "\"$buildTagVersion\"")
+        }
+
+        getByName("debug") {
+            buildConfigField("String", "BUILD_TAG_VERSION", "\"$buildTagVersion\"")
         }
     }
 
@@ -57,6 +68,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
