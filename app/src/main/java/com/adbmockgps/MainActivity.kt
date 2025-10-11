@@ -22,7 +22,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
 import com.adbmockgps.ui.theme.ADBMockGPSTheme
+import androidx.hilt.navigation.compose.hiltViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import com.adbmockgps.BuildConfig
 
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val locationPermissions = arrayOf(
@@ -51,7 +56,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ADBMockGPSTheme {
-                val lastBroadcastInfo by BroadcastStateRepository.lastBroadcast.collectAsState()
+                val viewModel: MainViewModel = hiltViewModel()
+                val lastBroadcastInfo by viewModel.lastBroadcastInfo.collectAsState()
                 val lifecycleOwner = LocalLifecycleOwner.current
                 val lifecycleState by lifecycleOwner.lifecycle.currentStateAsState()
 

@@ -10,13 +10,18 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Optimized GpsBroadcastReceiver that sets up the mock provider once
  * and only updates locations on subsequent calls.
  */
+@AndroidEntryPoint
 class SetLocationBroadcastReceiver : BroadcastReceiver() {
+    @Inject
+    lateinit var broadcastStateRepository: BroadcastStateRepository
+
     private val scope = CoroutineScope(Dispatchers.IO)
 
     companion object {
@@ -61,7 +66,7 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
         }
 
         Log.i("ADBMockGPS", "Received coordinates: lat=$lat, lon=$lon, alt=$alt")
-        BroadcastStateRepository.updateLastBroadcast(lat, lon, alt)
+        broadcastStateRepository.updateLastBroadcast(lat, lon, alt)
 
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
