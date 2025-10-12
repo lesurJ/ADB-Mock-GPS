@@ -20,9 +20,9 @@ class MockLocationService : Service() {
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
-    private var currentLat: Double? = null
-    private var currentLon: Double? = null
-    private var currentAlt: Double? = null
+    @Volatile private var currentLat: Double = 0.0
+    @Volatile private var currentLon: Double = 0.0
+    @Volatile private var currentAlt: Double? = null
 
     private lateinit var locationManager: LocationManager
 
@@ -48,14 +48,19 @@ class MockLocationService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START, ACTION_UPDATE_LOCATION -> {
-                currentLat = intent.getDoubleExtra("lat", currentLat ?: 0.0)
-                currentLon = intent.getDoubleExtra("lon", currentLon ?: 0.0)
-                // Use hasExtra to differentiate between not present and a value of 0.0
-                if (intent.hasExtra("alt")) {
-                    currentAlt = intent.getDoubleExtra("alt", 0.0)
+                val newLat = intent.getDoubleExtra("lat", currentLat)
+                val newLon = intent.getDoubleExtra("lon", currentLon)
+                val newAlt = intent.getDoubleExtra("alt", 0.0)
+                Log.i("MockLocationService", "Service received location: $newLat, $newLon, $newAlt")
+
+                synchronized(this){
+                    currentLat = newLat
+                    currentLon = newLon
+                    currentAlt = newAlt
                 }
 
-                Log.i("MockLocationService", "Service received location: $currentLat, $currentLon, $currentAlt")
+                setMockLocation(SetLocationBroadcastReceiver.GPS_LOCATION_PROVIDER, newLat, newLon, newAlt)
+                setMockLocation(SetLocationBroadcastReceiver.NETWORK_LOCATION_PROVIDER, newLat, newLon, newAlt)
 
                 if (!isRunning) {
                     startForeground(NOTIFICATION_ID, createNotification())
@@ -75,13 +80,14 @@ class MockLocationService : Service() {
     private fun startLocationPulsing() {
         scope.launch {
             while (isActive) {
-                val lat = currentLat
-                val lon = currentLon
-                if (lat != null && lon != null) {
-                    setMockLocation(SetLocationBroadcastReceiver.GPS_LOCATION_PROVIDER, lat, lon, currentAlt)
+                synchronized(this@MockLocationService){
+                    val lat = currentLat
+                    val lon = currentLon
+                    val alt = currentAlt
+                    setMockLocation(SetLocationBroadcastReceiver.GPS_LOCATION_PROVIDER, lat, lon, alt)
                     setMockLocation(SetLocationBroadcastReceiver.NETWORK_LOCATION_PROVIDER, lat, lon, currentAlt)
                 }
-                delay(1500) // Pulse location every 1.5 sec
+                delay(2500)
             }
         }
     }

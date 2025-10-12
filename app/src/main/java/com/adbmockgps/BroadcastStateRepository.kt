@@ -2,8 +2,6 @@ package com.adbmockgps
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,24 +16,20 @@ data class LastBroadcastInfo(
 )
 
 /**
- * A singleton object to hold the state of the last broadcast, mirroring the
- * architecture of the adb-mock-steps app. Using a StateFlow allows the UI to
- * reactively collect updates.
+ * A singleton object to hold the state of the last broadcast.
+ * Using a StateFlow allows the UI to reactively collect updates.
  */
 @Singleton
 class BroadcastStateRepository @Inject constructor(){
     private val _lastBroadcast = MutableStateFlow<LastBroadcastInfo?>(null)
     val lastBroadcast = _lastBroadcast.asStateFlow()
 
-    fun updateLastBroadcast(latitude: Double, longitude: Double, altitude: Double?) {
-        val currentTime = LocalDateTime.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-
+    fun updateLastBroadcast(latitude: Double, longitude: Double, altitude: Double?, timestamp: String) {
         _lastBroadcast.value = LastBroadcastInfo(
             latitude = latitude,
             longitude = longitude,
             altitude = altitude,
-            timestamp = currentTime.format(formatter)
+            timestamp = timestamp
         )
     }
 }

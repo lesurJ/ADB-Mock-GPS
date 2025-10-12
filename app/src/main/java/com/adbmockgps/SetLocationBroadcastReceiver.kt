@@ -11,6 +11,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 /**
@@ -59,6 +61,8 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
         val lat = intent.getStringExtra("lat")?.toDoubleOrNull()
         val lon = intent.getStringExtra("lon")?.toDoubleOrNull()
         val alt = intent.getStringExtra("alt")?.toDoubleOrNull()
+        val currentTime = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
         if (lat == null || lon == null) {
             Log.e("ADBMockGPS", "Invalid coordinates: lat=$lat, lon=$lon")
@@ -66,7 +70,7 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
         }
 
         Log.i("ADBMockGPS", "Received coordinates: lat=$lat, lon=$lon, alt=$alt")
-        broadcastStateRepository.updateLastBroadcast(lat, lon, alt)
+        broadcastStateRepository.updateLastBroadcast(lat, lon, alt, currentTime.format(formatter))
 
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
