@@ -29,12 +29,18 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
     companion object {
         const val GPS_LOCATION_PROVIDER = LocationManager.GPS_PROVIDER
         const val NETWORK_LOCATION_PROVIDER = LocationManager.NETWORK_PROVIDER
+        const val FUSED_LOCATION_PROVIDER = "fused"
+        
         const val ACTION_SET_LOCATION = "com.adbmockgps.SET_LOCATION"
 
         @Volatile
-        private var isGpsProviderSetup = false
-        @Volatile
-        private var isNetworkProviderSetup = false
+        private var providersSetup = mutableSetOf<String>()
+
+        fun clearProvidersSetup() {
+            synchronized(providersSetup) {
+                providersSetup.clear()
+            }
+        }
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -74,23 +80,22 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
 
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        if (!isGpsProviderSetup) {
-            if (setupTestProvider(locationManager, GPS_LOCATION_PROVIDER)) {
-                isGpsProviderSetup = true
-                Log.i("ADBMockGPS", "GPS test provider setup completed.")
-            } else {
-                Log.e("ADBMockGPS", "Failed to setup GPS test provider.")
-                return
-            }
-        }
+        val providersToSetup = listOf(
+            GPS_LOCATION_PROVIDER, 
+            NETWORK_LOCATION_PROVIDER, 
+            FUSED_LOCATION_PROVIDER
+        )
 
-        if (!isNetworkProviderSetup) {
-            if (setupTestProvider(locationManager, NETWORK_LOCATION_PROVIDER)) {
-                isNetworkProviderSetup = true
-                Log.i("ADBMockGPS", "Network test provider setup completed.")
-            } else {
-                Log.e("ADBMockGPS", "Failed to setup Network test provider.")
-                return
+        synchronized(providersSetup) {
+            for (provider in providersToSetup) {
+                if (!providersSetup.contains(provider)) {
+                    if (setupTestProvider(locationManager, provider)) {
+                        providersSetup.add(provider)
+                        Log.i("ADBMockGPS", "$provider test provider setup completed.")
+                    } else {
+                        Log.e("ADBMockGPS", "Failed to setup $provider test provider.")
+                    }
+                }
             }
         }
 
@@ -107,19 +112,23 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
         try {
             locationManager.removeTestProvider(providerName)
         } catch (e: Exception) {
-            Log.d("ADBMockGPS", "No existing '$providerName' to remove or failed to remove.")
+            // This is expected if it wasn't already a test provider
         }
 
         try {
+            val requiresNetwork = providerName == NETWORK_LOCATION_PROVIDER || providerName == FUSED_LOCATION_PROVIDER
+            val requiresSatellite = providerName == GPS_LOCATION_PROVIDER || providerName == FUSED_LOCATION_PROVIDER
+            val requiresCell = providerName == NETWORK_LOCATION_PROVIDER || providerName == FUSED_LOCATION_PROVIDER
+
             locationManager.addTestProvider(
                 providerName,
-                true,
-                true,
-                true,
-                false,
-                true,
-                true,
-                true,
+                requiresNetwork,
+                requiresSatellite,
+                requiresCell,
+                false, // hasMonetaryCost
+                true,  // supportsAltitude
+                true,  // supportsSpeed
+                true,  // supportsBearing
                 ProviderProperties.POWER_USAGE_LOW,
                 ProviderProperties.ACCURACY_FINE
             )

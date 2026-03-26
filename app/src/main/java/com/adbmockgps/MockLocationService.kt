@@ -59,8 +59,7 @@ class MockLocationService : Service() {
                     currentAlt = newAlt
                 }
 
-                setMockLocation(SetLocationBroadcastReceiver.GPS_LOCATION_PROVIDER, newLat, newLon, newAlt)
-                setMockLocation(SetLocationBroadcastReceiver.NETWORK_LOCATION_PROVIDER, newLat, newLon, newAlt)
+                updateAllProviders(newLat, newLon, newAlt)
 
                 if (!isRunning) {
                     startForeground(NOTIFICATION_ID, createNotification())
@@ -81,14 +80,21 @@ class MockLocationService : Service() {
         scope.launch {
             while (isActive) {
                 synchronized(this@MockLocationService){
-                    val lat = currentLat
-                    val lon = currentLon
-                    val alt = currentAlt
-                    setMockLocation(SetLocationBroadcastReceiver.GPS_LOCATION_PROVIDER, lat, lon, alt)
-                    setMockLocation(SetLocationBroadcastReceiver.NETWORK_LOCATION_PROVIDER, lat, lon, currentAlt)
+                    updateAllProviders(currentLat, currentLon, currentAlt)
                 }
-                delay(2500)
+                delay(500)
             }
+        }
+    }
+
+    private fun updateAllProviders(lat: Double, lon: Double, alt: Double?) {
+        val providers = listOf(
+            SetLocationBroadcastReceiver.GPS_LOCATION_PROVIDER,
+            SetLocationBroadcastReceiver.NETWORK_LOCATION_PROVIDER,
+            SetLocationBroadcastReceiver.FUSED_LOCATION_PROVIDER
+        )
+        for (provider in providers) {
+            setMockLocation(provider, lat, lon, alt)
         }
     }
 
@@ -100,11 +106,14 @@ class MockLocationService : Service() {
             accuracy = 1.0f
             time = System.currentTimeMillis()
             elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
+            speed = 0.0f
+            bearing = 0.0f
         }
         try {
             locationManager.setTestProviderLocation(provider, mockLocation)
         } catch (e: Exception) {
-            Log.e("MockLocationService", "Failed to set mock location for $provider", e)
+            // Some providers like 'fused' might not be mockable on all devices
+            Log.v("MockLocationService", "Could not set mock location for $provider: ${e.message}")
         }
     }
 
@@ -144,6 +153,8 @@ class MockLocationService : Service() {
         try {
             locationManager.removeTestProvider(SetLocationBroadcastReceiver.GPS_LOCATION_PROVIDER)
             locationManager.removeTestProvider(SetLocationBroadcastReceiver.NETWORK_LOCATION_PROVIDER)
+            locationManager.removeTestProvider(SetLocationBroadcastReceiver.FUSED_LOCATION_PROVIDER)
+            SetLocationBroadcastReceiver.clearProvidersSetup()
         } catch (e: Exception) {
             Log.e("MockLocationService", "Failed to remove test providers on destroy", e)
         }
