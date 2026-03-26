@@ -47,6 +47,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          files: app/build/outputs/apk/release/app-release.apk
+          files: app/build/outputs/apk/release/ADB Mock GPS-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
