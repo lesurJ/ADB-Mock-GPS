@@ -81,7 +81,7 @@ class MockLocationService : Service() {
                 synchronized(this@MockLocationService){
                     updateAllProviders(currentLat, currentLon, currentAlt)
                 }
-                delay(200) // Increased frequency to 5Hz to prevent "drifting" to real location
+                delay(50)
             }
         }
     }
