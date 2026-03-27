@@ -30,6 +30,7 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
         const val GPS_LOCATION_PROVIDER = LocationManager.GPS_PROVIDER
         const val NETWORK_LOCATION_PROVIDER = LocationManager.NETWORK_PROVIDER
         const val FUSED_LOCATION_PROVIDER = "fused"
+        const val PASSIVE_LOCATION_PROVIDER = LocationManager.PASSIVE_PROVIDER
         
         const val ACTION_SET_LOCATION = "com.adbmockgps.SET_LOCATION"
 
@@ -83,7 +84,8 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
         val providersToSetup = listOf(
             GPS_LOCATION_PROVIDER, 
             NETWORK_LOCATION_PROVIDER, 
-            FUSED_LOCATION_PROVIDER
+            FUSED_LOCATION_PROVIDER,
+            PASSIVE_LOCATION_PROVIDER
         )
 
         synchronized(providersSetup) {

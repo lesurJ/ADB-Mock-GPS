@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
+import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
 import android.util.Log
@@ -82,7 +83,7 @@ class MockLocationService : Service() {
                 synchronized(this@MockLocationService){
                     updateAllProviders(currentLat, currentLon, currentAlt)
                 }
-                delay(500)
+                delay(200) // Increased frequency to 5Hz to prevent "drifting" to real location
             }
         }
     }
@@ -91,7 +92,8 @@ class MockLocationService : Service() {
         val providers = listOf(
             SetLocationBroadcastReceiver.GPS_LOCATION_PROVIDER,
             SetLocationBroadcastReceiver.NETWORK_LOCATION_PROVIDER,
-            SetLocationBroadcastReceiver.FUSED_LOCATION_PROVIDER
+            SetLocationBroadcastReceiver.FUSED_LOCATION_PROVIDER,
+            SetLocationBroadcastReceiver.PASSIVE_LOCATION_PROVIDER
         )
         for (provider in providers) {
             setMockLocation(provider, lat, lon, alt)
@@ -106,13 +108,19 @@ class MockLocationService : Service() {
             accuracy = 1.0f
             time = System.currentTimeMillis()
             elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
+            
+            // Adding extra precision for modern Android versions
+            verticalAccuracyMeters = 1.0f
+            speedAccuracyMetersPerSecond = 1.0f
+            bearingAccuracyDegrees = 1.0f
+
             speed = 0.0f
             bearing = 0.0f
         }
         try {
             locationManager.setTestProviderLocation(provider, mockLocation)
         } catch (e: Exception) {
-            // Some providers like 'fused' might not be mockable on all devices
+            // Log at verbose level as some providers (like fused or passive) might fail on certain devices
             Log.v("MockLocationService", "Could not set mock location for $provider: ${e.message}")
         }
     }
@@ -154,6 +162,7 @@ class MockLocationService : Service() {
             locationManager.removeTestProvider(SetLocationBroadcastReceiver.GPS_LOCATION_PROVIDER)
             locationManager.removeTestProvider(SetLocationBroadcastReceiver.NETWORK_LOCATION_PROVIDER)
             locationManager.removeTestProvider(SetLocationBroadcastReceiver.FUSED_LOCATION_PROVIDER)
+            locationManager.removeTestProvider(SetLocationBroadcastReceiver.PASSIVE_LOCATION_PROVIDER)
             SetLocationBroadcastReceiver.clearProvidersSetup()
         } catch (e: Exception) {
             Log.e("MockLocationService", "Failed to remove test providers on destroy", e)
