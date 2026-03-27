@@ -24,7 +24,6 @@ import androidx.lifecycle.compose.currentStateAsState
 import com.adbmockgps.ui.theme.ADBMockGPSTheme
 import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import com.adbmockgps.BuildConfig
 
 
 @AndroidEntryPoint
@@ -33,6 +32,7 @@ class MainActivity : ComponentActivity() {
     private val locationPermissions = arrayOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_BACKGROUND_LOCATION
     )
 
     private var hasLocationPermissions by mutableStateOf(false)

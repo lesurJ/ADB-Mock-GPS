@@ -113,7 +113,7 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
     private fun setupTestProvider(locationManager: LocationManager, providerName: String): Boolean {
         try {
             locationManager.removeTestProvider(providerName)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // This is expected if it wasn't already a test provider
         }
 

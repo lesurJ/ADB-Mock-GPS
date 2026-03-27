@@ -5,11 +5,9 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
-import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
 import android.util.Log
@@ -42,7 +40,7 @@ class MockLocationService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         createNotificationChannel()
     }
 
