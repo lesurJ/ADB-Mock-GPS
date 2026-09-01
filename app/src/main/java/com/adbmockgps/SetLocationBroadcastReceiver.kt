@@ -27,11 +27,6 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
     private val scope = CoroutineScope(Dispatchers.IO)
 
     companion object {
-        const val GPS_LOCATION_PROVIDER = LocationManager.GPS_PROVIDER
-        const val NETWORK_LOCATION_PROVIDER = LocationManager.NETWORK_PROVIDER
-        const val FUSED_LOCATION_PROVIDER = "fused"
-        const val PASSIVE_LOCATION_PROVIDER = LocationManager.PASSIVE_PROVIDER
-        
         const val ACTION_SET_LOCATION = "com.adbmockgps.SET_LOCATION"
 
         @Volatile
@@ -86,15 +81,8 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
 
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        val providersToSetup = listOf(
-            GPS_LOCATION_PROVIDER, 
-            NETWORK_LOCATION_PROVIDER, 
-            FUSED_LOCATION_PROVIDER,
-            PASSIVE_LOCATION_PROVIDER
-        )
-
         synchronized(providersSetup) {
-            for (provider in providersToSetup) {
+            for (provider in LocationProviders.ALL) {
                 if (!providersSetup.contains(provider)) {
                     if (setupTestProvider(locationManager, provider)) {
                         providersSetup.add(provider)
@@ -123,9 +111,9 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
         }
 
         try {
-            val requiresNetwork = providerName == NETWORK_LOCATION_PROVIDER || providerName == FUSED_LOCATION_PROVIDER
-            val requiresSatellite = providerName == GPS_LOCATION_PROVIDER || providerName == FUSED_LOCATION_PROVIDER
-            val requiresCell = providerName == NETWORK_LOCATION_PROVIDER || providerName == FUSED_LOCATION_PROVIDER
+            val requiresNetwork = providerName == LocationProviders.NETWORK || providerName == LocationProviders.FUSED
+            val requiresSatellite = providerName == LocationProviders.GPS || providerName == LocationProviders.FUSED
+            val requiresCell = providerName == LocationProviders.NETWORK || providerName == LocationProviders.FUSED
 
             locationManager.addTestProvider(
                 providerName,

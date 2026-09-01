@@ -87,13 +87,7 @@ class MockLocationService : Service() {
     }
 
     private fun updateAllProviders(lat: Double, lon: Double, alt: Double?) {
-        val providers = listOf(
-            SetLocationBroadcastReceiver.GPS_LOCATION_PROVIDER,
-            SetLocationBroadcastReceiver.NETWORK_LOCATION_PROVIDER,
-            SetLocationBroadcastReceiver.FUSED_LOCATION_PROVIDER,
-            SetLocationBroadcastReceiver.PASSIVE_LOCATION_PROVIDER
-        )
-        for (provider in providers) {
+        for (provider in LocationProviders.ALL) {
             setMockLocation(provider, lat, lon, alt)
         }
     }
@@ -157,10 +151,9 @@ class MockLocationService : Service() {
         job.cancel()
         isRunning = false
         try {
-            locationManager.removeTestProvider(SetLocationBroadcastReceiver.GPS_LOCATION_PROVIDER)
-            locationManager.removeTestProvider(SetLocationBroadcastReceiver.NETWORK_LOCATION_PROVIDER)
-            locationManager.removeTestProvider(SetLocationBroadcastReceiver.FUSED_LOCATION_PROVIDER)
-            locationManager.removeTestProvider(SetLocationBroadcastReceiver.PASSIVE_LOCATION_PROVIDER)
+            for (provider in LocationProviders.ALL) {
+                locationManager.removeTestProvider(provider)
+            }
             SetLocationBroadcastReceiver.clearProvidersSetup()
         } catch (e: Exception) {
             Log.e("MockLocationService", "Failed to remove test providers on destroy", e)
