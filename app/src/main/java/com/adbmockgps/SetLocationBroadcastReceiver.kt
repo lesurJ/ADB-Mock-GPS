@@ -76,6 +76,11 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
             return
         }
 
+        if (lat !in -90.0..90.0 || lon !in -180.0..180.0) {
+            Log.e("ADBMockGPS", "Coordinates out of range: lat=$lat, lon=$lon")
+            return
+        }
+
         Log.i("ADBMockGPS", "Received coordinates: lat=$lat, lon=$lon, alt=$alt")
         broadcastStateRepository.updateLastBroadcast(lat, lon, alt, currentTime.format(formatter))
 
