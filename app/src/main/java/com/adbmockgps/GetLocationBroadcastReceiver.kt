@@ -21,18 +21,12 @@ class GetLocationBroadcastReceiver : BroadcastReceiver() {
             return
         }
 
-        Log.i("ADBMockGPS", "=== BROADCAST RECEIVER TRIGGERED ===")
-        Log.i("ADBMockGPS", "Action: ${intent.action}")
+        Log.i(LOG_TAG, "=== BROADCAST RECEIVER TRIGGERED ===")
+        Log.i(LOG_TAG, "Action: ${intent.action}")
 
-        val lastBroadcast = broadcastStateRepository.lastBroadcast.value
-        val resultData = if (lastBroadcast != null) {
-            val altitude = lastBroadcast.altitude?.toString().orEmpty()
-            "${lastBroadcast.latitude},${lastBroadcast.longitude},$altitude"
-        } else {
-            "NA"
-        }
+        val resultData = broadcastStateRepository.lastBroadcast.value.toResultString()
 
         setResultData(resultData)
-        Log.i("ADBMockGPS", "Result: $resultData")
+        Log.i(LOG_TAG, "Result: $resultData")
     }
 }

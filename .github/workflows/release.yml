@@ -37,6 +37,12 @@ jobs:
       - name: Grant execute permission to gradlew
         run: chmod +x ./gradlew
 
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Run lint
+        run: ./gradlew lintDebug
+
       - name: Build signed APK
         run: ./gradlew assembleRelease -PbuildTagVersion=${{ github.ref_name }}
 

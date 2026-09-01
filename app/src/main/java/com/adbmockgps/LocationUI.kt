@@ -1,12 +1,15 @@
 package com.adbmockgps
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.util.Locale
 
 @Composable
 fun LocationScreen(
@@ -75,6 +79,8 @@ fun StatusCard(
     onGrantNotificationPermission: () -> Unit,
     onOpenDeveloperOptions: () -> Unit
 ) {
+    var showDeveloperOptionsDialog by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
@@ -122,10 +128,31 @@ fun StatusCard(
             }
 
             Spacer(Modifier.height(12.dp))
-            Button(onClick = onOpenDeveloperOptions) {
+            Button(onClick = { showDeveloperOptionsDialog = true }) {
                 Text("Select in Developer Options")
             }
         }
+    }
+
+    if (showDeveloperOptionsDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeveloperOptionsDialog = false },
+            title = { Text("Enable Mock Location") },
+            text = { Text("To enable mock locations, please select this app in Developer Options > Select mock location app.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeveloperOptionsDialog = false
+                    onOpenDeveloperOptions()
+                }) {
+                    Text("Open Developer Options")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeveloperOptionsDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
@@ -145,7 +172,6 @@ fun StatusRow(label: String, isGranted: Boolean) {
     }
 }
 
-@SuppressLint("DefaultLocale")
 @Composable
 fun LastReceivedDataCard(lastBroadcastInfo: LastBroadcastInfo?) {
     Card(
@@ -168,9 +194,9 @@ fun LastReceivedDataCard(lastBroadcastInfo: LastBroadcastInfo?) {
                     color = Color.Gray
                 )
             } else {
-                InfoRow("Latitude:", String.format("%.6f", lastBroadcastInfo.latitude))
-                InfoRow("Longitude:", String.format("%.6f", lastBroadcastInfo.longitude))
-                InfoRow("Altitude:", lastBroadcastInfo.altitude?.let { String.format("%.1f m", it) } ?: "N/A")
+                InfoRow("Latitude:", String.format(Locale.US, "%.6f", lastBroadcastInfo.latitude))
+                InfoRow("Longitude:", String.format(Locale.US, "%.6f", lastBroadcastInfo.longitude))
+                InfoRow("Altitude:", lastBroadcastInfo.altitude?.let { String.format(Locale.US, "%.1f m", it) } ?: "N/A")
                 InfoRow("Time:", lastBroadcastInfo.timestamp)
             }
         }

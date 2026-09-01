@@ -50,7 +50,7 @@ class MockLocationService : Service() {
                 val newLat = intent.getDoubleExtra("lat", currentLat)
                 val newLon = intent.getDoubleExtra("lon", currentLon)
                 val newAlt = intent.getDoubleExtra("alt", 0.0)
-                Log.i("MockLocationService", "Service received location: $newLat, $newLon, $newAlt")
+                Log.i(LOG_TAG, "Service received location: $newLat, $newLon, $newAlt")
 
                 synchronized(this){
                     currentLat = newLat
@@ -64,11 +64,11 @@ class MockLocationService : Service() {
                     startForeground(NOTIFICATION_ID, createNotification())
                     startLocationPulsing()
                     isRunning = true
-                    Log.i("MockLocationService", "Service started and is now pulsing location.")
+                    Log.i(LOG_TAG, "Service started and is now pulsing location.")
                 }
             }
             ACTION_STOP -> {
-                Log.i("MockLocationService", "Service stopping.")
+                Log.i(LOG_TAG, "Service stopping.")
                 stopSelf()
             }
         }
@@ -113,7 +113,7 @@ class MockLocationService : Service() {
             locationManager.setTestProviderLocation(provider, mockLocation)
         } catch (e: Exception) {
             // Log at verbose level as some providers (like fused or passive) might fail on certain devices
-            Log.v("MockLocationService", "Could not set mock location for $provider: ${e.message}")
+            Log.v(LOG_TAG, "Could not set mock location for $provider: ${e.message}")
         }
     }
 
@@ -156,9 +156,9 @@ class MockLocationService : Service() {
             }
             SetLocationBroadcastReceiver.clearProvidersSetup()
         } catch (e: Exception) {
-            Log.e("MockLocationService", "Failed to remove test providers on destroy", e)
+            Log.e(LOG_TAG, "Failed to remove test providers on destroy", e)
         }
-        Log.i("MockLocationService", "Service destroyed, providers removed.")
+        Log.i(LOG_TAG, "Service destroyed, providers removed.")
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

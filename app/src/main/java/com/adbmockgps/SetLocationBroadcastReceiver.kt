@@ -47,11 +47,11 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         scope.launch {
             try {
-                Log.i("ADBMockGPS", "=== BROADCAST RECEIVER TRIGGERED ===")
-                Log.i("ADBMockGPS", "Action: ${intent.action}")
+                Log.i(LOG_TAG, "=== BROADCAST RECEIVER TRIGGERED ===")
+                Log.i(LOG_TAG, "Action: ${intent.action}")
                 handleLocationIntent(context, intent)
             } catch (e: Exception) {
-                Log.e("ADBMockGPS", "Error processing broadcast", e)
+                Log.e(LOG_TAG, "Error processing broadcast", e)
             } finally {
                 pendingResult.finish()
             }
@@ -67,16 +67,16 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
         if (lat == null || lon == null) {
-            Log.e("ADBMockGPS", "Invalid coordinates: lat=$lat, lon=$lon")
+            Log.e(LOG_TAG, "Invalid coordinates: lat=$lat, lon=$lon")
             return
         }
 
-        if (lat !in -90.0..90.0 || lon !in -180.0..180.0) {
-            Log.e("ADBMockGPS", "Coordinates out of range: lat=$lat, lon=$lon")
+        if (!CoordinateValidation.isValid(lat, lon)) {
+            Log.e(LOG_TAG, "Coordinates out of range: lat=$lat, lon=$lon")
             return
         }
 
-        Log.i("ADBMockGPS", "Received coordinates: lat=$lat, lon=$lon, alt=$alt")
+        Log.i(LOG_TAG, "Received coordinates: lat=$lat, lon=$lon, alt=$alt")
         broadcastStateRepository.updateLastBroadcast(lat, lon, alt, currentTime.format(formatter))
 
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -86,9 +86,9 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
                 if (!providersSetup.contains(provider)) {
                     if (setupTestProvider(locationManager, provider)) {
                         providersSetup.add(provider)
-                        Log.i("ADBMockGPS", "$provider test provider setup completed.")
+                        Log.i(LOG_TAG, "$provider test provider setup completed.")
                     } else {
-                        Log.e("ADBMockGPS", "Failed to setup $provider test provider.")
+                        Log.e(LOG_TAG, "Failed to setup $provider test provider.")
                     }
                 }
             }
@@ -129,14 +129,14 @@ class SetLocationBroadcastReceiver : BroadcastReceiver() {
             )
 
             locationManager.setTestProviderEnabled(providerName, true)
-            Log.i("ADBMockGPS", "'$providerName' setup successful")
+            Log.i(LOG_TAG, "'$providerName' setup successful")
             return true
 
         } catch (e: SecurityException) {
-            Log.e("ADBMockGPS", "SecurityException for '$providerName': Mock location permission denied", e)
+            Log.e(LOG_TAG, "SecurityException for '$providerName': Mock location permission denied", e)
             return false
         } catch (e: Exception) {
-            Log.e("ADBMockGPS", "Error setting up '$providerName': ${e.message}", e)
+            Log.e(LOG_TAG, "Error setting up '$providerName': ${e.message}", e)
             return false
         }
     }

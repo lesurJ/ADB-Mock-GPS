@@ -16,6 +16,16 @@ data class LastBroadcastInfo(
 )
 
 /**
+ * Formats broadcast info as "lat,lon,alt" for GetLocationBroadcastReceiver's result data.
+ * The altitude field is left empty (not the string "null") when absent.
+ */
+fun LastBroadcastInfo?.toResultString(): String {
+    if (this == null) return "NA"
+    val altitude = altitude?.toString().orEmpty()
+    return "$latitude,$longitude,$altitude"
+}
+
+/**
  * A singleton object to hold the state of the last broadcast.
  * Using a StateFlow allows the UI to reactively collect updates.
  */

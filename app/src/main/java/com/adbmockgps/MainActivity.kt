@@ -1,7 +1,6 @@
 package com.adbmockgps
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -82,14 +81,7 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     onOpenDeveloperOptions = {
-                        AlertDialog.Builder(this)
-                            .setTitle("Enable Mock Location")
-                            .setMessage("To enable mock locations, please select this app in Developer Options > Select mock location app.")
-                            .setPositiveButton("Open Developer Options") { _, _ ->
-                                startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
-                            }
-                            .setNegativeButton("Cancel", null)
-                            .show()
+                        startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
                     }
                 )
             }
