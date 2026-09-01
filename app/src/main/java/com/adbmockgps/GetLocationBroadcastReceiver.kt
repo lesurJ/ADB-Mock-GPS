@@ -26,7 +26,8 @@ class GetLocationBroadcastReceiver : BroadcastReceiver() {
 
         val lastBroadcast = broadcastStateRepository.lastBroadcast.value
         val resultData = if (lastBroadcast != null) {
-            "${lastBroadcast.latitude},${lastBroadcast.longitude},${lastBroadcast.altitude}"
+            val altitude = lastBroadcast.altitude?.toString().orEmpty()
+            "${lastBroadcast.latitude},${lastBroadcast.longitude},$altitude"
         } else {
             "NA"
         }
