@@ -82,10 +82,27 @@ class MainActivity : ComponentActivity() {
                     },
                     onOpenDeveloperOptions = {
                         startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
-                    }
+                    },
+                    onInitializeLocation = ::seedMockLocation
                 )
             }
         }
+    }
+
+    /**
+     * Seeds the app's mock GPS pipeline with a capital by firing the same
+     * SET_LOCATION broadcast that the ADB command sends. Reusing the receiver
+     * keeps a single code path for setting the mock location.
+     */
+    private fun seedMockLocation(capital: Capital) {
+        val intent = Intent(SetLocationBroadcastReceiver.ACTION_SET_LOCATION).apply {
+            setPackage(packageName)
+            putExtra("lat", capital.latitude.toString())
+            putExtra("lon", capital.longitude.toString())
+            putExtra("alt", capital.altitude.toString())
+        }
+        sendBroadcast(intent)
+        Log.d("MainActivity", "Seeded mock location: ${capital.city}")
     }
 
     private fun checkPrerequisites() {

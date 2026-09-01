@@ -3,7 +3,9 @@ package com.adbmockgps
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,7 +30,8 @@ fun LocationScreen(
     buildTagVersion: String,
     onGrantLocationPermissions: () -> Unit,
     onGrantNotificationPermission: () -> Unit,
-    onOpenDeveloperOptions: () -> Unit
+    onOpenDeveloperOptions: () -> Unit,
+    onInitializeLocation: (Capital) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -38,6 +41,7 @@ fun LocationScreen(
         contentAlignment = Alignment.Center
     ) {
         Column(
+            modifier = Modifier.verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
@@ -57,6 +61,7 @@ fun LocationScreen(
                 onOpenDeveloperOptions
             )
             LastReceivedDataCard(lastBroadcastInfo)
+            InitializeLocationCard(onInitializeLocation)
             AdbCommandCard()
         }
         Text(
@@ -255,6 +260,67 @@ fun AdbCommandCard() {
                 color = Color.Gray,
                 fontFamily = FontFamily.Monospace
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InitializeLocationCard(onInitializeLocation: (Capital) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    var selected by remember { mutableStateOf<Capital?>(null) }
+    val options = EuropeanCapitals.CAPITALS
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF2D2D2D)),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "🌍 Initialize Location",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = "Initialize location at pre-defined coordinates.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+            Spacer(Modifier.height(12.dp))
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                TextField(
+                    modifier = Modifier
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                        .fillMaxWidth(),
+                    readOnly = true,
+                    value = selected?.let { "${it.city}, ${it.country}" } ?: "Select a capital",
+                    onValueChange = {},
+                    label = { Text("Capital") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    colors = ExposedDropdownMenuDefaults.textFieldColors()
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    options.forEach { capital ->
+                        DropdownMenuItem(
+                            text = { Text("${capital.city}, ${capital.country}") },
+                            onClick = {
+                                selected = capital
+                                expanded = false
+                                onInitializeLocation(capital)
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }
