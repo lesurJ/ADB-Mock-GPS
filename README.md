@@ -67,7 +67,7 @@ While other apps exist for manually setting mock locations, having the ability t
 
 - 🔔 **Enable Notifications**
 
-  This app uses a Foreground Service to keep the location active (pulsing location every 1.5sec). As of API 33, the app is required by Android to post a notification allowing to stop the service.
+  This app uses a Foreground Service to keep the location active (pulsing location every 50ms). As of API 33, the app is required by Android to post a notification allowing to stop the service.
 
   1. For API 33 and above, grant the notification permission by clicking on the "Grant Notification" button and allow notification.
   2. For API <= 32 you don't have to grant the notification permission.
