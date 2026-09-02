@@ -1,8 +1,10 @@
 package com.adbmockgps
 
 import android.Manifest
+import android.app.AppOpsManager
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Process
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -36,6 +38,7 @@ class MainActivity : ComponentActivity() {
 
     private var hasLocationPermissions by mutableStateOf(false)
     private var hasNotificationPermission by mutableStateOf(false)
+    private var isMockLocationApp by mutableStateOf(false)
 
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -70,6 +73,7 @@ class MainActivity : ComponentActivity() {
                 LocationScreen(
                     hasLocationPermissions=hasLocationPermissions,
                     hasNotificationPermission=hasNotificationPermission,
+                    isMockLocationApp = isMockLocationApp,
                     lastBroadcastInfo = lastBroadcastInfo,
                     buildTagVersion = BuildConfig.BUILD_TAG_VERSION,
                     onGrantLocationPermissions = {
@@ -116,6 +120,22 @@ class MainActivity : ComponentActivity() {
         } else {
             true
         }
+
+        isMockLocationApp = checkIsMockLocationApp()
+        Log.d("MainActivity", "Selected as mock location app: $isMockLocationApp")
+    }
+
+    /**
+     * Returns true when this app is the one picked in
+     * Developer options > Select mock location app. There is no direct API for
+     * this, so we read the app-op the system flips when an app is chosen.
+     */
+    private fun checkIsMockLocationApp(): Boolean {
+        val appOps = getSystemService(APP_OPS_SERVICE) as AppOpsManager
+        val mode = appOps.unsafeCheckOpNoThrow(
+            AppOpsManager.OPSTR_MOCK_LOCATION, Process.myUid(), packageName
+        )
+        return mode == AppOpsManager.MODE_ALLOWED
     }
 
 }

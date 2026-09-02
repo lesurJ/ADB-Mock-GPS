@@ -26,6 +26,7 @@ import java.util.Locale
 fun LocationScreen(
     hasLocationPermissions: Boolean,
     hasNotificationPermission: Boolean,
+    isMockLocationApp: Boolean,
     lastBroadcastInfo: LastBroadcastInfo?,
     buildTagVersion: String,
     onGrantLocationPermissions: () -> Unit,
@@ -56,6 +57,7 @@ fun LocationScreen(
             StatusCard(
                 hasLocationPermissions,
                 hasNotificationPermission,
+                isMockLocationApp,
                 onGrantLocationPermissions,
                 onGrantNotificationPermission,
                 onOpenDeveloperOptions
@@ -80,6 +82,7 @@ fun LocationScreen(
 fun StatusCard(
     hasLocationPermissions: Boolean,
     hasNotificationPermission: Boolean,
+    isMockLocationApp: Boolean,
     onGrantLocationPermissions: () -> Unit,
     onGrantNotificationPermission: () -> Unit,
     onOpenDeveloperOptions: () -> Unit
@@ -111,6 +114,8 @@ fun StatusCard(
             StatusRow("Location Permissions", hasLocationPermissions)
             Spacer(Modifier.height(12.dp))
             StatusRow("Notification Permissions", hasNotificationPermission)
+            Spacer(Modifier.height(12.dp))
+            StatusRow("Selected as Mock Location App", isMockLocationApp)
             Spacer(Modifier.height(12.dp))
             Text(
                 text = "Make sure to select this app as 'Mock Location App' in the developer settings.",
